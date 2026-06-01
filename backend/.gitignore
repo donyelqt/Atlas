@@ -1,0 +1,7 @@
+# Atlas Backend
+.env
+__pycache__/
+*.pyc
+.venv/
+poetry.lock
+dist/
