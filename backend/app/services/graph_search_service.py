@@ -3,16 +3,19 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from app.services.neo4j_service import neo4j_service
-
 logger = logging.getLogger(__name__)
 
 
 class GraphSearchService:
     """Repository-scoped natural-language and Cypher search over the Neo4j graph."""
 
-    async def _get_driver(self):
-        svc = neo4j_service
+    @staticmethod
+    def _svc():
+        from app.services.neo4j_service import neo4j_service
+        return neo4j_service
+
+    async def _driver(self):
+        svc = self._svc()
         await svc.connect()
         return svc._driver
 

@@ -91,7 +91,31 @@ npm run dev
 
 ### Find all nodes mentioning "auth" in a large codebase
 ```bash
-curl "http://localhost:8000/api/neo4j/graph/{analysis_id}?q=auth&hops=3"
+curl -X POST "http://localhost:8000/api/neo4j/search/{analysis_id}" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"auth","hops":3}'
+```
+
+### Find everything connected to a specific file
+```bash
+curl "http://localhost:8000/api/neo4j/related/{analysis_id}/app/services/auth.py?hops=2"
+```
+
+### Shortest path from API to database
+```bash
+curl "http://localhost:8000/api/neo4j/path/{analysis_id}?source=api/routes/users.py&target=models/user.py"
+```
+
+### Find entry points
+```bash
+curl "http://localhost:8000/api/neo4j/entry-points/{analysis_id}?limit=20"
+```
+
+### Raw Cypher (via the backend `run_query` helper)
+```cypher
+MATCH (r:Repository {id: '<analysis_id>'})-[:HAS_NODE]->(n:Node)
+WHERE n.label CONTAINS 'payment'
+RETURN n
 ```
 
 ### Find everything connected to a specific file
@@ -114,6 +138,7 @@ RETURN n
 ## Features
 
 - 🗺️ Interactive architecture graph
+- 🔎 Neo4j-backed graph search for large/undocumented repos
 - 💬 Repository-specific AI chat
 - 📋 AI-generated onboarding plans
 - 🔍 Framework and language detection

@@ -34,7 +34,7 @@ export default function RepositoryPage() {
     if (initialUrl && !repoUrl) setRepoUrl(initialUrl);
   }, [initialUrl, repoUrl, setRepoUrl]);
 
-  usePollAnalysis(analysisId);
+  usePollAnalysis(analysisId ?? "");
 
   const activeTab = status === "idle" || status === "analyzing" ? "graph" : "graph";
 

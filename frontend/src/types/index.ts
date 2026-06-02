@@ -21,6 +21,7 @@ export interface GraphNode {
   language?: string | null;
   size: number;
   children?: string[];
+  [key: string]: unknown;
 }
 
 export interface GraphEdge {

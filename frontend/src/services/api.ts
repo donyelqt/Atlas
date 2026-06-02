@@ -63,35 +63,23 @@ export function useAnalyzeRepo() {
 }
 
 export function usePollAnalysis(analysisId: string) {
-  const setSummary = useAnalysisStore((s) => s.setSummary);
-  const setGraphData = useAnalysisStore((s) => s.setGraphData);
-  const setArchitecture = useAnalysisStore((s) => s.setArchitecture);
-  const setOnboarding = useAnalysisStore((s) => s.setOnboarding);
-  const setAnalyzing = useAnalysisStore((s) => s.setAnalyzing);
-  const setError = useAnalysisStore((s) => s.setError);
+  const setSummary = useAnalysisStore((s) => s.setSummary)
+  const setGraphData = useAnalysisStore((s) => s.setGraphData)
+  const setArchitecture = useAnalysisStore((s) => s.setArchitecture)
+  const setOnboarding = useAnalysisStore((s) => s.setOnboarding)
+  const setAnalyzing = useAnalysisStore((s) => s.setAnalyzing)
+  const setError = useAnalysisStore((s) => s.setError)
 
-  return useQuery({
-    queryKey: ["analysis", analysisId],
+  return useQuery<AnalysisSummary | null, Error, AnalysisSummary | null, readonly [string, string]>({
+    queryKey: ["analysis", analysisId] as const,
     queryFn: () => pollSummary(analysisId),
     enabled: !!analysisId,
-    refetchInterval: (query) => {
-      const data = query.state.data;
-      if (data?.status === "completed" || data?.status === "failed") return false;
-      return 2000;
+    refetchInterval: (q) => {
+      const data = q.state.data
+      if (data?.status === "completed" || data?.status === "failed") return false
+      return 2000
     },
-    onSuccess: (data) => {
-      if (!data) return;
-      setSummary(data as AnalysisSummary);
-      if (data.status === "completed") {
-        setAnalyzing("completed");
-        fetchGraph(analysisId).then(setGraphData);
-      }
-      if (data.status === "failed") {
-        setAnalyzing("failed");
-        setError(data.error ?? "Unknown");
-      }
-    },
-  });
+  })
 }
 
 export function useGraph(analysisId: string) {

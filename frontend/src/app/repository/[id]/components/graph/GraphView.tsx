@@ -24,9 +24,9 @@ const NODE_COLORS: Record<string, string> = {
 };
 
 const nodeTypes: NodeTypes = {
-  custom: ({ data }: { data: Record<string, unknown> }) => {
-    const color = NODE_COLORS[String(data.type)] || "#94a3b8";
-    const isModule = String(data.type) === "module";
+  custom: ({ data }: { data: { type?: string; label?: string; path?: string } }) => {
+    const color = NODE_COLORS[data.type || ""] || "#94a3b8";
+    const isModule = data.type === "module";
     const Icon = isModule ? FolderOpen : FileCode2;
     return (
       <div
@@ -41,12 +41,12 @@ const nodeTypes: NodeTypes = {
       >
         <div className="flex items-center gap-2">
           <Icon className="w-4 h-4 shrink-0" style={{ color }} />
-          <span className="text-xs font-semibold text-slate-100 truncate" title={String(data.label)}>
-            {String(data.label)}
+          <span className="text-xs font-semibold text-slate-100 truncate" title={data.label || ""}>
+            {data.label}
           </span>
         </div>
         <div className="text-[10px] text-slate-400 mt-1 truncate font-mono">
-          {String(data.path || "").replace(/^.*\//, "")}
+          {(data.path || "").replace(/^.*\//, "")}
         </div>
       </div>
     );
@@ -99,7 +99,7 @@ export function GraphView({ analysisId }: { analysisId: string }) {
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1e293b" />
         <Controls className="bg-slate-900 border border-slate-700 rounded-lg" />
         <MiniMap
-          nodeColor={(n) => NODE_COLORS[n.data?.type] || "#475569"}
+          nodeColor={(n: { data?: { type?: string } }) => NODE_COLORS[n.data?.type || ""] || "#475569"}
           className="!bg-slate-950 !rounded-lg border border-slate-700"
           maskColor="rgba(15, 23, 42, 0.7)"
         />
