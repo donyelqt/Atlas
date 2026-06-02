@@ -65,21 +65,24 @@ class LLMService:
         structure_summary: str,
         key_modules: list[dict[str, Any]],
     ) -> dict[str, Any]:
-        system = """You are an expert software architect.
-Analyze the repository structure and provide an architecture assessment.
-Respond with a JSON object with keys: architecture_type, key_modules (list of {name, description}),
-complexity (one of: Low, Medium, High), summary (one paragraph)."""
+    system = """You are an expert software architect specializing in reverse-engineering undocumented or undocumented codebases.
+Your job is to infer architecture from file paths, names, and structure alone — docs may be absent or misleading.
+Be honest about uncertainty. Prefer evidence-based conclusions. Respond with a JSON object with keys:
+architecture_type, key_modules (list of {{name, description, confidence: high|medium|low}}),
+complexity (one of: Low, Medium, High), summary (one paragraph), assumptions (list of strings)."""
 
-        prompt = f"""Repository: {repo_name}
+    prompt = f"""Repository: {repo_name}
 Language: {language or 'Unknown'}
 Framework: {framework or 'Unknown'}
 File count: {file_count}
-Structure:
+Structure (module -> file count):
 {structure_summary}
 
 Key modules detected:
-{chr(10).join(f'- {m.get("name","")}: {m.get("path","")}' for m in key_modules[:20])}
-"""
+{chr(10).join(f'- {m.get("name","")}: {len(m.get("files",[]))} files' for m in key_modules[:30])}
+
+NOTE: This repository may be undocumented. Base conclusions on file naming conventions, directory layout,
+config files, and standard patterns. Flag anything you are inferring vs confirming from code."""
         response = await self.generate(prompt, system)
         try:
             import json
@@ -102,17 +105,26 @@ Key modules detected:
         file_contexts: list[dict[str, Any]],
         architecture_summary: str,
     ) -> str:
-        system = f"""You are Atlas, an AI software architect assistant for the repository '{repo_name}'.
-Use ONLY the provided file contexts to answer. If information is not available, say so clearly.
-Cite file paths when referencing specific code."""
+    system = f"""You are Atlas, an AI software architect assistant for the repository '{repo_name}'.
+This codebase may be undocumented, partially complete, or use non-standard patterns.
+Use ONLY the provided file contexts to answer. If information is not available or unclear, say so explicitly
+and suggest where the user should look. Cite file paths. When inferring, say 'likely' or 'appears to'."""
 
-        files_text = "\n\n".join(
-            f"--- {f.get('path','')} ---\n{f.get('content_preview','') or ''}"
-            for f in file_contexts[:10]
-        )
+    files_text = "\n\n".join(
+        f"--- {f.get('path','')} ---\n{f.get('content_preview','') or '[no preview]'}"
+        for f in file_contexts[:15]
+    )
 
-        prompt = f"""Architecture Summary:
+    imports_text = "\n".join(
+        f"- {f.get('path','')}: {', '.join(f.get('imports',[]) or [])}"
+        for f in file_contexts[:15] if (f.get('imports') or []).__len__() > 0
+    )
+
+    prompt = f"""Architecture Summary:
 {architecture_summary}
+
+Imports / Dependencies (best signal of intent):
+{imports_text}
 
 File Contexts:
 {files_text}
@@ -127,16 +139,18 @@ User Question: {question}"""
         key_modules: list[dict[str, Any]],
         architecture_type: str | None,
     ) -> dict[str, Any]:
-        system = """You are a senior engineer creating an onboarding plan.
-Return JSON with: steps (list of {{title, description, files, estimated_minutes}}),
-total_estimated_minutes, prerequisites."""
+    system = """You are a senior engineer creating an onboarding plan for an undocumented or partially documented codebase.
+Return JSON with: steps (list of {{title, description, files, estimated_minutes, why_this_order}}),
+total_estimated_minutes, prerequisites, warning (string with any caveats about missing docs or unusual patterns).
+Order steps by dependency: entry point first, then what it imports, then what imports that."""
 
-        prompt = f"""Repository: {repo_name}
+    prompt = f"""Repository: {repo_name}
 Architecture: {architecture_type or 'Unknown'}
-Entry point: {entry_point or 'Unknown'}
-Key modules:
-{chr(10).join(f'- {m.get("name","")}: {m.get("path","")}' for m in key_modules[:15])}
-"""
+Entry point candidates: {entry_point or 'none detected'}
+Key modules with file counts:
+{chr(10).join(f'- {m.get("name","")}: {len(m.get("files",[]))} files at {m.get("path","")}' for m in key_modules[:20])}
+
+Guidance: Prioritize entry points and config files first. If docs are missing, flag that the learner must read code directly."""
         response = await self.generate(prompt, system)
         try:
             import json
