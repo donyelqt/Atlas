@@ -6,9 +6,9 @@ import { useAnalysisStore } from "@/store/useAnalysisStore";
 import { cn } from "@/lib/utils";
 import { Search, RefreshCw, BookOpen, GitBranch, Loader2, X, ChevronRight } from "lucide-react";
 
-export { SearchPanel };
+export { GraphSearchPanel };
 
-function SearchPanel() {
+function GraphSearchPanel() {
   const [query, setQuery] = useState("");
   const [hops, setHops] = useState(2);
   const analysisId = useAnalysisStore((s) => s.analysisId);
