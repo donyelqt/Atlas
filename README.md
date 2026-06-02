@@ -62,17 +62,54 @@ npm run dev
 - **Anthropic** — Claude models
 - **Google** — Gemini models
 
+### Graph Database
+- **Neo4j 5 Community Edition** — persisted adjacency graph for cross-session queries (natural-language search, shortest path, node degree, entry-point discovery)
+- **Python driver**: `neo4j` async driver
+- Optional APOC plugin (installed in compose) for variable-length traversal
+
 ### Container / Infrastructure
 - **Docker** — multi-stage builds for backend and frontend
-- **Docker Compose** — orchestrates API, frontend, and Redis
+- **Docker Compose** — orchestrates API, frontend, Redis, and Neo4j
 - **Redis** — broker (Celery), cache, and result backend
 
 ## API Endpoints
 
+### Core
 - `POST /api/analyze` — Analyze a repository
 - `GET /api/summary/{id}` — Get analysis summary
-- `GET /api/graph/{id}` — Get architecture graph
+- `GET /api/graph/{id}` — Get architecture graph (in-memory)
 - `POST /api/chat` — Ask repository questions
+
+### Graph Search (Neo4j)
+- `POST /api/neo4j/sync/{analysis_id}` — Sync graph to Neo4j (run once per analysis)
+- `GET /api/neo4j/graph/{analysis_id}` — Fetch persisted graph from Neo4j
+- `GET /api/neo4j/entry-points/{analysis_id}` — Find entry-point files/modules
+- `GET /api/neo4j/related/{analysis_id}/{node_id}` — Get connected nodes within N hops
+- `GET /api/neo4j/path/{analysis_id}?source=...&target=...` — Shortest path between nodes
+
+## Graph Search Examples
+
+### Find all nodes mentioning "auth" in a large codebase
+```bash
+curl "http://localhost:8000/api/neo4j/graph/{analysis_id}?q=auth&hops=3"
+```
+
+### Find everything connected to a specific file
+```bash
+curl "http://localhost:8000/api/neo4j/related/{analysis_id}/app/services/auth.py?hops=2"
+```
+
+### Shortest path from API to database
+```bash
+curl "http://localhost:8000/api/neo4j/path/{analysis_id}?source=api/routes/users.py&target=models/user.py"
+```
+
+### Raw Cypher (via the Chat agent)
+```
+MATCH (r:Repository {id: '<analysis_id>'})-[:HAS_NODE]->(n:Node)
+WHERE n.label CONTAINS 'payment'
+RETURN n
+```
 
 ## Features
 
