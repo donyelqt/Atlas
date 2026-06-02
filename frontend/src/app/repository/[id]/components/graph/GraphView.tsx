@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import {
   ReactFlow,
   Background,
@@ -75,7 +75,7 @@ export function GraphView({ analysisId }: { analysisId: string }) {
       type: "smoothstep",
       animated: Math.random() > 0.5,
       style: { stroke: "#475569", strokeWidth: 1.5 },
-      label: e.type === "imports" || e.type === "depends_on" ? n.label : undefined,
+      label: e.type === "imports" || e.type === "depends_on" ? e.label : undefined,
     }));
 
     return { nodes: rfNodes, edges: rfEdges };

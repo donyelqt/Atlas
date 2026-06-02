@@ -63,20 +63,23 @@ export default function RepositoryPage() {
         <div className="flex-1 flex flex-col min-w-0">
           {status === "completed" && (
             <div className="shrink-0 flex items-center gap-1 px-6 pt-4 overflow-x-auto">
-              {TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all",
-                    activeTab === tab.id
-                      ? "bg-atlas-500/20 text-atlas-300 border border-atlas-500/30"
-                      : "text-slate-500 hover:text-slate-300 border border-transparent"
-                  )}
-                >
-                  <tab.icon className="w-3.5 h-3.5" />
-                  {tab.label}
-                </button>
-              ))}
+              {TABS.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all",
+                      isActive
+                        ? "bg-atlas-500/20 text-atlas-300 border border-atlas-500/30"
+                        : "text-slate-500 hover:text-slate-300 border border-transparent"
+                    )}
+                  >
+                    <tab.icon className="w-3.5 h-3.5" />
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
           )}
 

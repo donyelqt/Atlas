@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
-import { QueryClient } from "@tanstack/react-query";
 import { Providers } from "./providers";
 
 const geist = Geist({
