@@ -113,3 +113,42 @@ export function useChat() {
     },
   });
 }
+
+async function syncGraph(analysisId: string): Promise<{ status: string }> {
+  const res = await fetch(`${API_URL}/api/neo4j/sync/${analysisId}`, { method: "POST" });
+  if (!res.ok) throw new Error("Failed to sync graph to Neo4j");
+  return res.json();
+}
+
+export function useSyncGraph() {
+  return useMutation({ mutationFn: syncGraph });
+}
+
+async function searchGraph(analysisId: string, query: string, hops = 2, limit = 20) {
+  const params = new URLSearchParams({ query, hops: String(hops), limit: String(limit) });
+  const res = await fetch(`${API_URL}/api/neo4j/search/${analysisId}?${params}`);
+  if (!res.ok) throw new Error("Graph search failed");
+  return res.json();
+}
+
+export function useGraphSearch(analysisId: string, query: string, hops = 2) {
+  return useQuery({
+    queryKey: ["graphSearch", analysisId, query, hops],
+    queryFn: () => searchGraph(analysisId, query, hops),
+    enabled: !!analysisId && !!query,
+  });
+}
+
+async function fetchEntryPoints(analysisId: string, limit = 20) {
+  const res = await fetch(`${API_URL}/api/neo4j/entry-points/${analysisId}?limit=${limit}`);
+  if (!res.ok) throw new Error("Failed to fetch entry points");
+  return res.json();
+}
+
+export function useEntryPoints(analysisId: string) {
+  return useQuery({
+    queryKey: ["neo4jEntryPoints", analysisId],
+    queryFn: () => fetchEntryPoints(analysisId),
+    enabled: !!analysisId,
+  });
+}
