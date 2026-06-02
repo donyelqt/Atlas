@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.api.routes.analyze import router as api_router
+from app.api.routes.neo4j import router as neo4j_router
 
 
 @asynccontextmanager
@@ -28,6 +29,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     _app.include_router(api_router, prefix="/api")
+    _app.include_router(neo4j_router, prefix="/api")
 
     @_app.get("/health")
     async def health() -> dict:
