@@ -1,8 +1,16 @@
+from __future__ import annotations
+
+from typing import Any
+
 from fastapi import APIRouter
 
 from app.schemas.models import RepoUrlRequest, AnalysisSummary, ChatRequest, ChatResponse, GraphResponse
-from app.agents import RepositoryAgent, ArchitectureAgent, GraphAgent, OnboardingAgent
+from app.agents.repository_agent import RepositoryAgent
+from app.agents.architecture_agent import ArchitectureAgent
+from app.agents.graph_agent import GraphAgent
+from app.agents.onboarding_agent import OnboardingAgent
 from app.services.llm_service import LLMService
+from app.services.github_service import GitHubService
 from app.core.config import settings
 
 import logging
