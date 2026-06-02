@@ -23,9 +23,49 @@ npm run dev
 
 ## Tech Stack
 
-**Backend**: FastAPI, Poetry, tree-sitter, NetworkX, LangGraph  
-**Frontend**: Next.js 14, TypeScript, Tailwind CSS, React Flow (XYFlow), Zustand, TanStack Query  
-**AI**: OpenAI / Anthropic / Gemini
+### Backend
+| Layer | Technology |
+|-------|-----------|
+| Language | Python 3.11+ |
+| Framework | FastAPI 0.111 |
+| ASGI Server | Uvicorn (with `standard` extras) |
+| Package Manager | Poetry + `requirements.txt` fallback |
+| Configuration | Pydantic v2 + `pydantic-settings` (`.env`) |
+| GitHub API | `httpx` (async REST — no `git clone` needed) |
+| Code Parsing | `tree-sitter` + `tree-sitter-languages` |
+| Graph Processing | `networkx` |
+| Repo Access | GitHub REST API (primary), GitPython (fallback) |
+| LLM Clients | `openai`, `anthropic`, `google-generativeai` |
+| Caching / Queue | `redis` + `celery[redis]` |
+| Retries | `tenacity` |
+| Env Management | `python-dotenv` |
+| Async File I/O | `aiofiles` |
+| Testing | `pytest` + `pytest-asyncio` |
+| Linting | `ruff` |
+| Type Checking | `mypy` (strict) |
+
+### Frontend
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v3 + PostCSS + Autoprefixer |
+| Graph Visualization | `@xyflow/react` (React Flow v12) |
+| State Management | Zustand |
+| Data Fetching | TanStack Query (React Query v5) |
+| Icons | `lucide-react` |
+| Utilities | `clsx` + `tailwind-merge` |
+| Linting | ESLint |
+
+### AI / LLM Providers
+- **OpenAI** — `gpt-4o` (default)
+- **Anthropic** — Claude models
+- **Google** — Gemini models
+
+### Container / Infrastructure
+- **Docker** — multi-stage builds for backend and frontend
+- **Docker Compose** — orchestrates API, frontend, and Redis
+- **Redis** — broker (Celery), cache, and result backend
 
 ## API Endpoints
 
