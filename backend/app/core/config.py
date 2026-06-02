@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     api_url: str = "http://localhost:8000"
     frontend_url: str = "http://localhost:3000"
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]
+    neo4j_uri: str = "bolt://neo4j:7687"
+    neo4j_user: str = "neo4j"
+    neo4j_password: str = "atlas"
+    neo4j_database: str = "neo4j"
 
     @property
     def has_llm_key(self) -> bool:
