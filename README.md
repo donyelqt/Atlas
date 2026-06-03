@@ -1,4 +1,4 @@
-# Atlas
+# Atlas - your agentic repo visualizer
 
 AI-powered repository intelligence platform that transforms GitHub repositories into interactive architecture maps.
 
